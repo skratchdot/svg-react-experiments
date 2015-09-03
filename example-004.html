@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG React Experiments by skratchdot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://fb.me/react-with-addons-0.13.1.min.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script type="text/jsx">
+      var toHex = function (num) {
+      	var hex = num.toString(16);
+      	if (hex.length === 1) {
+      		hex = '0' + hex;
+      	}
+      	return hex;
+      };
+      
+      var floatBetween = function (min, max) {
+      	return Math.random() * (max - min) + min;
+      };
+      
+      var intBetween = function (min, max) {
+      	return Math.floor(Math.random() * (max - min + 1)) + min;
+      };
+      
+      var randomHex = function () {
+      	return '#' +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255));
+      };
+      
+      var randomColor = function () {
+      	return 'rgba(' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		floatBetween(0, 1) + ')';
+      };
+      
+      var App = React.createClass({
+        getRandomState: function () {
+          var i, j, pathData = [];
+          for (i = 0; i < 4; i++) {
+            var row = [];
+            var max = intBetween(5, 5);
+            for (j = 0; j < max; j++) {
+              row.push(floatBetween(0, 100));
+            }
+            if (row.indexOf(0) === -1) {
+              row.push(0);
+            }
+            if (row.indexOf(100) === -1) {
+              row.push(100);
+            }
+            row = row.sort();
+            for (j = 0; j < row.length - 1; j++) {
+              if (i === 0) {
+                pathData.push({
+                  dSuffix: ' L ' +
+                    0 + ' ' +
+                    row[j] + ' L ' +
+                    0 + ' ' +
+                    row[j + 1] + ' Z',
+                  color: randomColor()
+                });
+              } else if (i === 1) {
+                pathData.push({
+                  dSuffix: ' L ' +
+                    100 + ' ' +
+                    row[j] + ' L ' +
+                    100 + ' ' +
+                    row[j + 1] + ' Z',
+                  color: randomColor()
+                });
+              } else if (i === 2) {
+                pathData.push({
+                  dSuffix: ' L ' +
+                    row[j] + ' ' +
+                    0 + ' L ' +
+                    row[j + 1] + ' ' +
+                    0 + ' Z',
+                  color: randomColor()
+                });
+              } else {
+                pathData.push({
+                  dSuffix: ' L ' +
+                    row[j] + ' ' +
+                    100 + ' L ' +
+                    row[j + 1] + ' ' +
+                    100 + ' Z',
+                  color: randomColor()
+                });
+              }
+            }
+          }
+          
+          return {
+            pathData: pathData,
+            backgroundSvg: randomColor()
+          };
+        },
+        getInitialState: function () {
+          var state = this.getRandomState();
+          state.x = floatBetween(0, 100);
+          state.y = floatBetween(0, 100);
+          return state;
+        },
+        handleMouseMove: function (e) {
+          var height = 'innerHeight' in window ?
+      			window.innerHeight :
+      			document.documentElement.offsetHeight;
+      		var width = 'innerWidth' in window ?
+      			window.innerWidth :
+      			document.documentElement.offsetWidth;
+      		this.setState({
+      		  x: ((e.clientX / width) * 100).toFixed(2),
+      		  y: ((e.clientY / height) * 100).toFixed(2)
+      		});
+        },
+        handleRandom: function () {
+          this.setState(this.getRandomState());
+        },
+        render: function () {
+          var $this = this;
+          return (
+            <svg width="100%" height="100%"
+              viewBox="0 0 100 100" 
+              preserveAspectRatio="none"
+              onClick={this.handleRandom}
+              onMouseMove={this.handleMouseMove}
+              style={{background:this.state.backgroundSvg}}>
+              <path d={'M ' + this.state.x + ' ' + this.state.y + ' L 0 0 Z'} fill="red" />
+              {this.state.pathData.map(function (pathData) {
+                return <path fill={pathData.color} d={'M ' +
+                  $this.state.x + ' ' + $this.state.y +
+                  pathData.dSuffix} />
+              })}
+            </svg>
+          );
+        }  
+      });
+      React.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
