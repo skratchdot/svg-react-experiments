@@ -9,3 +9,4 @@ Check out a few of the examples:
 - http://projects.skratchdot.com/svg-react-experiments/example-004.html
 - http://projects.skratchdot.com/svg-react-experiments/example-005.html
 - http://projects.skratchdot.com/svg-react-experiments/example-006.html
+- http://projects.skratchdot.com/svg-react-experiments/example-007.html
