@@ -65,19 +65,14 @@
           }
           return {
             pathData: pathData,
-            backgroundSvg: randomColor(),
-            backgroundCircle: randomColor()
+            backgroundSvg: randomColor()
           };
         },
         getInitialState: function () {
           var state = this.getRandomState();
-          state.paused = false;
           state.x = floatBetween(0, 100);
           state.y = floatBetween(0, 100);
           return state;
-        },
-        handleClick: function () {
-          this.setState({paused: !this.state.paused});
         },
         handleMouseMove: function (e) {
           var height = 'innerHeight' in window ?
@@ -86,12 +81,10 @@
       		var width = 'innerWidth' in window ?
       			window.innerWidth :
       			document.documentElement.offsetWidth;
-      		if (!this.state.paused) {
-        		this.setState({
-        		  x: ((e.clientX / width) * 100).toFixed(2),
-        		  y: ((e.clientY / height) * 100).toFixed(2)
-        		});
-      		}
+      		this.setState({
+      		  x: ((e.clientX / width) * 100).toFixed(2),
+      		  y: ((e.clientY / height) * 100).toFixed(2)
+      		});
         },
         handleRandom: function () {
           this.setState(this.getRandomState());
@@ -105,7 +98,6 @@
               onClick={this.handleRandom}
               onMouseMove={this.handleMouseMove}
               style={{background:this.state.backgroundSvg}}>
-              <circle cx={this.state.x} cy={this.state.y} r="1" fill={this.state.backgroundCircle} />
               <path d={'M ' + this.state.x + ' ' + this.state.y + ' L 0 0 Z'} fill="red" />
               {this.state.pathData.map(function (pathData) {
                 return <path fill={pathData.color} d={'M ' +
