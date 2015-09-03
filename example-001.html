@@ -47,14 +47,6 @@
           var max = intBetween(10, 100);
           for (var i = 0; i < max; i++) {
             pathData.push({
-              start: {
-                side: intBetween(0, 3),
-                point: floatBetween(0, 100)
-              },
-              end: {
-                side: intBetween(0, 3),
-                point: floatBetween(0, 100)
-              },
               dSuffix: ' L ' +
                 floatBetween(-100, 200) + ' ' +
                 floatBetween(-100, 200) + ' L ' +
@@ -64,27 +56,15 @@
             });
           }
           return {
+            x: floatBetween(0, 100),
+            y: floatBetween(0, 100),
             pathData: pathData,
             backgroundSvg: randomColor()
           };
         },
         getInitialState: function () {
           var state = this.getRandomState();
-          state.x = floatBetween(0, 100);
-          state.y = floatBetween(0, 100);
           return state;
-        },
-        handleMouseMove: function (e) {
-          var height = 'innerHeight' in window ?
-      			window.innerHeight :
-      			document.documentElement.offsetHeight;
-      		var width = 'innerWidth' in window ?
-      			window.innerWidth :
-      			document.documentElement.offsetWidth;
-      		this.setState({
-      		  x: ((e.clientX / width) * 100).toFixed(2),
-      		  y: ((e.clientY / height) * 100).toFixed(2)
-      		});
         },
         handleRandom: function () {
           this.setState(this.getRandomState());
@@ -96,7 +76,6 @@
               viewBox="0 0 100 100" 
               preserveAspectRatio="none"
               onClick={this.handleRandom}
-              onMouseMove={this.handleMouseMove}
               style={{background:this.state.backgroundSvg}}>
               <path d={'M ' + this.state.x + ' ' + this.state.y + ' L 0 0 Z'} fill="red" />
               {this.state.pathData.map(function (pathData) {
