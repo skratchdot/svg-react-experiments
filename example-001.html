@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG React Experiments by skratchdot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://fb.me/react-with-addons-0.13.1.min.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script type="text/jsx">
+      var toHex = function (num) {
+      	var hex = num.toString(16);
+      	if (hex.length === 1) {
+      		hex = '0' + hex;
+      	}
+      	return hex;
+      };
+      
+      var floatBetween = function (min, max) {
+      	return Math.random() * (max - min) + min;
+      };
+      
+      var intBetween = function (min, max) {
+      	return Math.floor(Math.random() * (max - min + 1)) + min;
+      };
+      
+      var randomHex = function () {
+      	return '#' +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255));
+      };
+      
+      var randomColor = function () {
+      	return 'rgba(' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		floatBetween(0, 1) + ')';
+      };
+      
+      var App = React.createClass({
+        getRandomState: function () {
+          var pathData = [];
+          var max = intBetween(10, 100);
+          for (var i = 0; i < max; i++) {
+            pathData.push({
+              start: {
+                side: intBetween(0, 3),
+                point: floatBetween(0, 100)
+              },
+              end: {
+                side: intBetween(0, 3),
+                point: floatBetween(0, 100)
+              },
+              dSuffix: ' L ' +
+                floatBetween(-100, 200) + ' ' +
+                floatBetween(-100, 200) + ' L ' +
+                floatBetween(-100, 200) + ' ' +
+                floatBetween(-100, 200) + ' Z',
+              color: randomColor()
+            });
+          }
+          return {
+            pathData: pathData,
+            backgroundSvg: randomColor(),
+            backgroundCircle: randomColor()
+          };
+        },
+        getInitialState: function () {
+          var state = this.getRandomState();
+          state.paused = false;
+          state.x = floatBetween(0, 100);
+          state.y = floatBetween(0, 100);
+          return state;
+        },
+        handleClick: function () {
+          this.setState({paused: !this.state.paused});
+        },
+        handleMouseMove: function (e) {
+          var height = 'innerHeight' in window ?
+      			window.innerHeight :
+      			document.documentElement.offsetHeight;
+      		var width = 'innerWidth' in window ?
+      			window.innerWidth :
+      			document.documentElement.offsetWidth;
+      		if (!this.state.paused) {
+        		this.setState({
+        		  x: ((e.clientX / width) * 100).toFixed(2),
+        		  y: ((e.clientY / height) * 100).toFixed(2)
+        		});
+      		}
+        },
+        handleRandom: function () {
+          this.setState(this.getRandomState());
+        },
+        render: function () {
+          var $this = this;
+          return (
+            <svg width="100%" height="100%"
+              viewBox="0 0 100 100" 
+              preserveAspectRatio="none"
+              onClick={this.handleRandom}
+              onMouseMove={this.handleMouseMove}
+              style={{background:this.state.backgroundSvg}}>
+              <circle cx={this.state.x} cy={this.state.y} r="1" fill={this.state.backgroundCircle} />
+              <path d={'M ' + this.state.x + ' ' + this.state.y + ' L 0 0 Z'} fill="red" />
+              {this.state.pathData.map(function (pathData) {
+                return <path fill={pathData.color} d={'M ' +
+                  $this.state.x + ' ' + $this.state.y +
+                  pathData.dSuffix} />
+              })}
+            </svg>
+          );
+        }  
+      });
+      React.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
