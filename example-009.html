@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG React Experiments by skratchdot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://fb.me/react-with-addons-0.13.1.min.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script type="text/jsx">
+      var toHex = function (num) {
+      	var hex = num.toString(16);
+      	if (hex.length === 1) {
+      		hex = '0' + hex;
+      	}
+      	return hex;
+      };
+      var floatBetween = function (min, max) {
+      	return Math.random() * (max - min) + min;
+      };
+      var intBetween = function (min, max) {
+      	return Math.floor(Math.random() * (max - min + 1)) + min;
+      };
+      var randomId = function (id) {
+        return '' + (id || '') + '_' + Date.now() + '_' +
+          Math.floor(Math.random() * 9999999);
+      };
+      var randomPercent = function () {
+        return '' + floatBetween(0, 100).toFixed(2) + '%';
+      };
+      var randomHex = function () {
+      	return '#' +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255)) +
+      		toHex(intBetween(0, 255));
+      };
+      var randomColor = function () {
+      	return 'rgba(' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		intBetween(0, 255) + ',' +
+      		floatBetween(0, 1) + ')';
+      };
+      var Ray = React.createClass({
+        getDefaultProps: function () {
+          return {
+            id: randomId(''),
+            gradient: {
+              x1: 0, y1: 0,
+              x2: 0, y2: 0,
+              offset1: '0%',
+              offset2: '100%',
+              color1: 'black',
+              color2: 'white'
+            },
+            origin: {x: 0, y:0},
+            point1: {x: 0, y:0},
+            point2: {x: 0, y:0},
+          };
+        },
+        getInitialState: function () {
+          return {};
+        },
+        render: function () {
+          var path = '' +
+            'M ' + this.props.origin.x + ' ' + this.props.origin.y +
+            ' L ' + this.props.point1.x + ' ' + this.props.point1.y +
+            ' L ' + this.props.point2.x + ' ' + this.props.point2.y +
+            ' Z';
+          return (
+            <g>
+              <linearGradient
+                id={this.props.id}
+                x1={this.props.gradient.x1}
+                y1={this.props.gradient.y1}
+                x2={this.props.gradient.x2}
+                y2={this.props.gradient.y2}>
+                <stop offset={this.props.gradient.offset1} stopColor={this.props.gradient.color1} />
+                <stop offset={this.props.gradient.offset2} stopColor={this.props.gradient.color2} />
+              </linearGradient>
+              <path fill={'url(#' + this.props.id + ')'} d={path} />
+            </g>
+          );
+        }
+      });
+      var App = React.createClass({
+        getRandomState: function () {
+          var i, j, pathData = [], rayData = [], numRays = 1,
+            offset = floatBetween(0, 100);
+          for (i = 0; i < 4; i++) {
+            var row = [];
+            var max = intBetween(5, 50);
+            for (j = 0; j < max; j++) {
+              row.push(floatBetween(0, 100));
+            }
+            if (row.indexOf(0) === -1) {
+              row.push(0);
+            }
+            if (row.indexOf(100) === -1) {
+              row.push(100);
+            }
+            row = row.sort(function (a, b) {
+              return (a-b);
+            });
+            for (j = 0; j < row.length - 1; j++) {
+              var obj = {
+                id: randomId('ray'),
+                gradient:{
+                  x1: randomPercent(),
+                  y1: randomPercent(),
+                  x2: randomPercent(),
+                  y2: randomPercent(),
+                  offset1: 0,
+                  offset2: '100%',
+                  color1: randomColor(),
+                  color2: randomColor()
+                },
+                origin: {x: 0, y:0},
+                point1: {x: 0, y:0},
+                point2: {x: 0, y:0}
+              };
+              if (i === 0) {
+                obj.point1.x = 0;
+                obj.point2.x = 0;
+                obj.point1.y = row[j];
+                obj.point2.y = row[j + 1];
+              } else if (i === 1) {
+                obj.point1.x = 100;
+                obj.point2.x = 100;
+                obj.point1.y = row[j];
+                obj.point2.y = row[j + 1];
+              } else if (i === 2) {
+                obj.point1.x = row[j];
+                obj.point2.x = row[j + 1];
+                obj.point1.y = 0;
+                obj.point2.y = 0;
+              } else {
+                obj.point1.x = row[j];
+                obj.point2.x = row[j + 1];
+                obj.point1.y = 100;
+                obj.point2.y = 100;
+              }
+              pathData.push(obj);
+            }
+          }
+          numRays = intBetween(2, 5);
+          for (i = 0; i < numRays; i++) {
+            var originX = intBetween(0, 100),
+              originY = intBetween(0, 100);
+            for (j = 0; j < pathData.length; j++) {
+              var obj = JSON.parse(JSON.stringify(pathData[j]));
+              obj.origin.x = originX;
+              obj.origin.y = originY;
+              obj.color1 = randomColor();
+              obj.color2 = randomColor();
+              rayData.push(obj);
+            }
+          }
+          return {
+            pathData: pathData,
+            rayData: rayData,
+            x2: floatBetween(0, 100),
+            y2: floatBetween(0, 100),
+            backgroundSvg: randomColor()
+          };
+        },
+        getInitialState: function () {
+          var state = this.getRandomState();
+          state.x = floatBetween(0, 100);
+          state.y = floatBetween(0, 100);
+          return state;
+        },
+        handleMouseMove: function (e) {
+          var height = 'innerHeight' in window ?
+      			window.innerHeight :
+      			document.documentElement.offsetHeight;
+      		var width = 'innerWidth' in window ?
+      			window.innerWidth :
+      			document.documentElement.offsetWidth;
+      		this.setState({
+      		  x: ((e.clientX / width) * 100).toFixed(2),
+      		  y: ((e.clientY / height) * 100).toFixed(2)
+      		});
+        },
+        handleRandom: function () {
+          this.setState(this.getRandomState());
+        },
+        render: function () {
+          var $this = this;
+          return (
+            <svg width="100%" height="100%"
+              viewBox="0 0 100 100" 
+              preserveAspectRatio="none"
+              onClick={this.handleRandom}
+              style={{background:this.state.backgroundSvg}}>
+              <path d={'M ' + this.state.x + ' ' + this.state.y + ' L 0 0 Z'} fill="red" />
+              {this.state.rayData.map(function (data) {
+                return (
+                  <g>
+                    <Ray
+                      id={data.id}
+                      origin={{x:data.origin.x, y:data.origin.y}}
+                      point1={{x:data.point1.x, y:data.point1.y}}
+                      point2={{x:data.point2.x, y:data.point2.y}}
+                      gradient={data.gradient}
+                    />
+                  </g>
+                );
+              })}
+            </svg>
+          );
+        }  
+      });
+      React.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
