@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG React Experiments by skratchdot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://fb.me/react-with-addons-0.13.1.min.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script type="text/jsx">
+      var App = React.createClass({
+        getInitialState: function () {
+          return {
+            x1Inc: 5,
+            y1Inc: 10,
+            x2Inc: 10,
+            y2Inc: 0,
+            x1Initial: 0,
+            y1Initial: 0,
+            x2Initial: 0,
+            y2Initial: 0,
+            x1Mod: 1,
+            y1Mod: 2,
+            x2Mod: 2,
+            y2Mod: 1,
+            numPoints: 100,
+            strokeWidth: 1
+          };
+        },
+        render: function () {
+          var path = 'M 0 0 ',
+            x1 = 0,
+            y1 = 0,
+            x2 = 0,
+            y2 = 0,
+            x1Current = 0,
+            y1Current = 0,
+            x2Current = 0,
+            y2Current = 0;
+          for (var i = 0; i < this.state.numPoints; i++) {
+            x1Current = (i % this.state.x1Mod === 0) ? this.state.x1Initial + x1 : this.state.x1Initial - x1;
+            y1Current = (i % this.state.y1Mod === 0) ? this.state.y1Initial - y1 : this.state.y1Initial + y1;
+            x2Current = (i % this.state.x2Mod === 0) ? this.state.x2Initial - x2 : this.state.x2Initial + x2;
+            y2Current = (i % this.state.y2Mod === 0) ? this.state.y2Initial + y2 : this.state.y2Initial - y2;
+            if (i > 0) {
+            path += ' S ' + x1Current
+               + ' ' + y1Current
+               + ' ' + x2Current
+               + ' ' + y2Current;
+              
+            }
+            x1 += this.state.x1Inc;
+            y1 += this.state.y1Inc;
+            x2 += this.state.x2Inc;
+            y2 += this.state.y2Inc;
+          }
+          var $this = this;
+          return (
+            <div>
+            {['x1Inc', 'y1Inc', 'x2Inc', 'y2Inc',
+            'numPoints', 'strokeWidth',
+            'x1Mod', 'y1Mod', 'x2Mod', 'y2Mod'].map(function (val) {
+              return (
+                <div>
+                  {val}: 
+                  <input type="range"
+                    step={val.indexOf('Mod')>0?1:0.01}
+                    min="-30"
+                    max="30"
+                    value={$this.state[val]}
+                    onChange={function (e) {
+                      var s = {};
+                      s[val] = parseFloat(e.target.value);
+                      $this.setState(s);
+                    }}
+                  />
+                </div>
+              );
+            })}
+              <svg width="300" height="300"
+                style={{border:'1px solid black'}}
+                viewBox="-200 -200 400 400"
+                preserveAspectRatio="none">
+                <path stroke="red" strokeWidth={$this.state.strokeWidth} fill="none"
+                  d={path} />
+              </svg>
+            </div>
+          );
+        }  
+      });
+      React.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
