@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SVG React Experiments by skratchdot</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://fb.me/react-with-addons-0.13.1.min.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script type="text/jsx">
+      var App = React.createClass({
+        getInitialState: function () {
+          return {
+            xInc: 1,
+            yInc: 1,
+            wInc: 1,
+            hInc: 1,
+            xInitial: 50,
+            yInitial: 50,
+            wInitial: 10,
+            hInitial: 10,
+            xMod: 1,
+            yMod: 1,
+            numRects: 100,
+            strokeWidth: 10
+          };
+        },
+        render: function () {
+          var rects = [],
+            x = 0,
+            y = 0,
+            w = this.state.wInitial,
+            h = this.state.hInitial,
+            currentX = 0,
+            currentY = 0;
+          for (var i = 0; i < this.state.numRects; i++) {
+            currentX = (i % this.state.xMod === 0) ? this.state.xInitial + x : this.state.xInitial - x;
+            currentY = (i % this.state.yMod === 0) ? this.state.yInitial + y : this.state.yInitial - y;
+            rects.push(<rect
+              fill="rgba(0,0,200,0.01)"
+              stroke="red"
+              strokeWidth={this.state.strokeWidth/30}
+              x={currentX}
+              y={currentY}
+              width={w} height={h}
+            />);
+            x += this.state.xInc;
+            y += this.state.yInc;
+            w += this.state.wInc;
+            h += this.state.hInc;
+          }
+          var $this = this;
+          return (
+            <div>
+            {['xInc', 'yInc', 'wInc', 'hInc',
+            'numRects','strokeWidth','xMod', 'yMod'].map(function (val) {
+              return (
+                <div>
+                  {val}: 
+                  <input type="range"
+                    step={val.indexOf('Mod')>0?1:0.01}
+                    min="-30"
+                    max="30"
+                    value={$this.state[val]}
+                    onChange={function (e) {
+                      var s = {};
+                      s[val] = parseFloat(e.target.value);
+                      $this.setState(s);
+                    }}
+                  />
+                </div>
+              );
+            })}
+              <svg 
+                viewBox="0 0 100 100" 
+                preserveAspectRatio="none">
+                {rects}
+              </svg>
+            </div>
+          );
+        }  
+      });
+      React.render(<App />, document.getElementById('app'));
+    </script>
+  </body>
+</html>
